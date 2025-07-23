@@ -1,0 +1,733 @@
+---
+title: "Seminar 6: Causal Inference 2"
+subtitle: "LSE ME314: Introduction to Data Science and Machine Learning"
+date-modified: "17 July 2025" 
+toc: true
+# format: html
+format: 
+  pdf:
+    keep-tex: true
+    include-in-header: 
+       text: |
+         \usepackage{fvextra}
+         \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+include-before-body:
+  text: |
+    \RecustomVerbatimEnvironment{verbatim}{Verbatim}{
+      showspaces = false,
+      showtabs = false,
+      breaksymbolleft={},
+      breaklines
+      % Note: setting commandchars=\\\{\} here will cause an error 
+    }
+execute:
+  echo: true
+  eval: true
+---
+
+## Plan for today:
+
+- Learn how to estimate Difference-in-Differences (DiD) models using the 2x2 and TWFE approaches
+
+- Create diagnostic plots to scrutinize parallel pre-trends 
+
+- Learn how to use instrumental variables (IV) to estimate causal effects
+
+- Learn to estimate sharp and fuzzy regression discontinuity (RD) designs using the `rdrobust` package
+
+- Create diagnostic plots for RD designs using the package `rdplot`
+
+We will go through parts 1 to 3 together, and then you will work on the remaining exercises individually or in groups.
+
+## Introduction
+
+In today's seminar, we will gain practical experience with causal inference. Let's start by loading the packages we will need for this seminar.
+
+```{r setup_r,message=FALSE,warning=FALSE}
+
+# load packages
+package_check <- function(need = c()) {
+    have <- need %in% rownames(installed.packages()) # checks packages you have
+    if (any(!have)) install.packages(need[!have]) # install missing packages
+    invisible(lapply(need, library, character.only = T))
+}
+
+required_packages <- c(
+    "dplyr", # for data management
+    "estimatr", # for regression with robust standard errors AND for IV estimation
+    "modelsummary", # for prettier model output tables and balance tables
+    "ggplot2", # for plotting
+    "ggdag", # for plotting directed acyclic graphs
+    "rdrobust", # for regression discontinuity designs
+    "rddensity", # for rd diagnostics
+    "AER" # for more toy datasets
+)
+
+package_check(required_packages)
+
+set.seed(12345)
+```
+
+
+## Part 1: Difference-in-Differences (DiD)
+
+In this section, we will learn how to estimate Difference-in-Differences (DiD) models using the 2x2 and Two-Way Fixed Effects (TWFE) approaches. 
+
+### Simulation
+Assume we have two time periods ($T = 0, 1$) and two groups ($G = 0, 1$). We are interested in the effect of a treatment $Z$, which switches on in time period $T=1$, on an outcome $Y$. We will assume a panel data setting in which units are observed twice.
+
+Given this setup, we can now simulate a dataset with 1000 observations. We will first simulate the potential outcomes $Y$ as a function of $T$, $Z$, and an error term.
+
+```{r simulate_data_2x2}
+N <- 1000
+ATE <- 2
+
+set.seed(123)
+data <- tibble(
+    # First, create a unit id such that each observation is observed three times:
+    id = sort(rep(1:N, 3)),
+    # Now, generate our time variable such that each observation is observed in all three periods:
+    t = rep(c(-1, 0, 1), N),
+    # Next, generate our group variable such that each observation is in one of two groups:
+    G = c(replicate(N, rep(sample(c(0, 1), 1), 3))),
+    Z = ifelse(t == 1, G, 0),
+    # Assign our error term as an idiosyncratic term:
+    U = rnorm(N * 3),
+    # Generate Y0 as a function of U, G, and t:
+    Y0 = 1 + 0.5 * t + 1 * G + 2 * U,
+    # Generate Y1 as a function of Y0, the ATE, and t:
+    Y1 = Y0 + rnorm(N, ATE, 0.25),
+    # Realize Y from PO and Z:
+    Y = Y1 * Z + Y0 * (1 - Z)
+)
+
+# Let's check our ATT in post-period (given our DGP, = ATE):
+mean(data$Y1[data$Z == 1]) - mean(data$Y0[data$Z == 1])
+
+```
+
+
+Let's visualize our data and our missing potential outcome. Which lines would we normally be able to observe?
+
+```{r po_visualize_2x2}
+y_sum <- data %>%
+    group_by(t, G) %>%
+    summarise(
+        Y_mean = mean(Y),
+        Y_se = sd(Y) / sqrt(sum(!is.na(Y)))
+    ) %>%
+    ungroup() %>%
+    mutate(Outcome = c(rep(c("Y|G=0", "Y|G=1"), 3)))
+
+y0_sum <- data %>%
+    filter(G == 1) %>%
+    group_by(t, G) %>%
+    summarise(
+        Y_mean = mean(Y0),
+        Y_se = sd(Y0) / sqrt(sum(!is.na(Y0)))
+    ) %>%
+    ungroup() %>%
+    mutate(Outcome = c(rep("Y(0)|G=1", 3)))
+
+y_plot <- y_sum %>%
+    rbind(y0_sum)
+
+ggplot(y_plot, aes(x = t, y = Y_mean, color = Outcome)) +
+    geom_line(alpha = 0.9) +
+    geom_point(alpha = 0.9) +
+    geom_errorbar(aes(ymin = Y_mean - 1.96 * Y_se, ymax = Y_mean + 1.96 * Y_se), width = 0) +
+    labs(title = "Diff-in-Diff", x = "Time", y = "Y", legend = "Treatment Group") +
+    theme_minimal()
+
+```
+
+
+### Analysis
+
+Let's begin with a naive comparison. We simply compare the average outcome between the treatment and control group. What would have to be true for this to give us the ATE?
+
+```{r naive_analysis_2x2}
+summary(lm_robust(Y ~ G, data))
+
+```
+
+
+Now let's try to implement the diff-in-diff by actually calculating all the necessary differences by hand.
+
+```{r plug_in_estimator_2x2}
+means <- data %>%
+    group_by(G, t) %>%
+    summarise(
+        Y_mean = mean(Y),
+        Y_se = sd(Y) / sqrt(sum(!is.na(Y)))
+    ) %>%
+    ungroup()
+
+# Let's do our diff-in-diff:
+(means$Y_mean[means$G == 1 & means$t == 1] - means$Y_mean[means$G == 1 & means$t == 0]) - (means$Y_mean[means$G == 0 & means$t == 1] - means$Y_mean[means$G == 0 & means$t == 0])
+```
+
+
+Now, let's do the same exercise using our 2x2 or TWFE regression specifications:
+
+```{r regression_2x2}
+# Standard regression estimator
+lm_robust(Y ~ G * t, data[data$t > -1, ])
+
+# Two-way fixed effects estimator
+lm_robust(Y ~ Z + factor(id) + factor(t), data[data$t > -1, ])$coef[1:10]
+
+```
+
+
+Finally, let's try and falsify the design by checking parallel pre-trends. We can do this by estimating the effect at 
+$t = 0$ (instead of $t = 1$). In other words, we pretend that the treatment had taken effect one time period earlier than it actually did. If we see a significant effect here, that means that the difference between the groups wasn't constant before the treatment.
+
+```{r parallel_pre_trends_2x2}
+# Standard regression estimator
+data_pretrend <- data %>%
+    filter(t < 1) %>%
+    mutate(t = t + 1)
+
+lm_robust(Y ~ G * t, data_pretrend)
+```
+
+If we would see a significant effect here, that would indicate the trends were not parallel before the treatment, which makes it highly likely that the parallel trends assumption is violated. 
+
+## Part 2: Instrumental Variables (IV)
+
+Let's clean up our environment so we don't clutter the environment.
+
+```{r cleanup}
+rm(list = ls())
+```
+
+
+We are interested in studying the effect of some causal variable ($D$) on some outcome variable ($Y$). As before, we will assume that $D$ is binary and so each unit has two potential outcomes: $Y_{0}$ and $Y_{1}$.
+
+We will assume that an unobserved confounder $U$ affects both $D$ and $Y$, and that an observed confounder $X$ does the same. This means that the effect of $D$ on $Y$ is not identified. We will look for an instrument $Z$ that might be able to help us.
+
+### Theoretical Setup
+
+Let's first sketch the theoretical setup outlined above:
+
+```{r theoretical_dag}
+theory <- dagify(Y ~ D + X + U,
+    D ~ Z + X + U,
+    coords = list(
+        x = c(D = 4, Y = 6, X = 5, U = 6, Z = 4),
+        y = c(D = 2, Y = 2, X = 3, U = 1, Z = 3)
+    )
+)
+
+ggdag(theory) +
+    theme_void() +
+    remove_axes()
+```
+
+
+### Simulation
+
+Given this DAG, we can now simulate a dataset with 1000 observations.  We will first simulate the potential outcomes for the treatment variable $D$ as a function of $Z$. Don't worry, you do not need to understand the simulation code below in detail.
+
+```{r generate_treatment_po_iv}
+N <- 1000
+
+data <- tibble(
+    # First, assign X and U:
+    X = rnorm(N, 1, 0.5),
+    U = rnorm(N),
+    # Next, assign a compliance score, which is the probability of being a complier (depending on X and U):
+    c_score = 1 / (1 + exp(-(-1 + 1 * X + 1 * U))),
+    # Determine if a complier:
+    complier = rbinom(N, 1, c_score),
+    # Now assign D1 and D0 for compliers:
+    D0 = ifelse(complier == 1, 0, NA),
+    D1 = ifelse(complier == 1, 1, NA),
+    # Now generate a pscore for always- and never-takers:
+    p_score = 1 / (1 + exp(-(-1 + .75 * X + 2 * U))),
+    always_taker = ifelse(complier == 0, rbinom(N, 1, p_score), 0),
+    never_taker = ifelse(complier == 0 & always_taker == 0, 1, 0),
+    compliance_type = ifelse(complier == 1, "complier", ifelse(always_taker == 1, "always_taker", "never_taker"))
+) %>% # Now, finish assigning D0 and D1:
+    mutate(
+        D0 = ifelse(always_taker == 1, 1, D0),
+        D1 = ifelse(always_taker == 1, 1, D1),
+        D0 = ifelse(never_taker == 1, 0, D0),
+        D1 = ifelse(never_taker == 1, 0, D1)
+    )
+
+```
+
+
+Now that we have our treatment potential outcomes, we can simulate the potential outcomes for the outcome variable $Y$. We will assume an ATE of 2, but allow individual treatment effect heterogeneity.
+
+```{r generate_outcome_po}
+LATE <- 2
+
+data <- data %>%
+    mutate(
+        Y0D0 = dplyr::case_when( # case_when is a dplyr function that allows us to combine multiple conditions (like an extension of ifelse)
+            complier == 1 ~ 1 + 0.5 * X + 0.5 * U,
+            always_taker == 1 ~ 1 + 0.5 * X + 0.5 * U + rnorm(N, mean = LATE, sd = 1),
+            never_taker == 1 ~ 1 + 0.5 * X + 0.5 * U,
+            TRUE ~ NA
+        ),
+        Y1D1 = dplyr::case_when(
+            complier == 1 ~ Y0D0 + rnorm(N, mean = LATE, sd = 1),
+            always_taker == 1 ~ Y0D0,
+            never_taker == 1 ~ Y0D0,
+            TRUE ~ NA
+        )
+    )
+
+# Pr(Compliers):
+mean(data$complier)
+
+# ITT
+mean(data$Y1D1) - mean(data$Y0D0)
+
+# LATE
+(mean(data$Y1D1) - mean(data$Y0D0)) / mean(data$complier)
+
+# CATEs for always-takers and never-takers:
+mean(data$Y1D1[data$always_taker == 1]) - mean(data$Y0D0[data$always_taker == 1])
+mean(data$Y1D1[data$never_taker == 1]) - mean(data$Y0D0[data$never_taker == 1])
+```
+
+
+We have our potential outcomes for both treatment and the outcome variable, so we can now finally assign the encouragement $Z$, and realize the outcomes for $D$ and $Y$. Our assignment mechanism will be straightforward randomization with a probability of 0.5.
+
+```{r assign_encouragement}
+data <- data %>%
+    mutate(
+        Z = rbinom(N, 1, 0.5), # random assignment of encouragement
+        D = D0 * (1 - Z) + D1 * Z, # reveal D based on Z
+        Y = Y0D0 * (1 - Z) + Y1D1 * Z # reveal Y based on Z
+    )
+```
+
+
+### Analysis
+
+Let's start by checking that the naive comparison does not work in the way we hope it would. Simply compare the average outcome between the treatment and control group. 
+
+```{r naive_analysis_iv}
+broom::tidy(lm_robust(Y ~ D, data))
+
+```
+
+
+Now let's estimate the ITT:
+
+```{r itt_estimate}
+broom::tidy(lm_robust(Y ~ Z, data))
+
+```
+
+
+Let's try the Wald Estimator to get our LATE. Recall that the Wald estimator is simply the estimated ITT divided by the estimated proportion of compliers.
+
+```{r wald_estimator}
+# First, let's estimate the complier proportion, we call it ITT_D because it is the ITT for the effects of Z on D
+ITT_D <- mean(data$D[data$Z == 1]) - mean(data$D[data$Z == 0])
+
+# it's just:
+lm(D ~ Z, data)
+
+# Next, estimate the ITT for the effect of Z on Y
+ITT <- lm(Y ~ Z, data)$coefficients[["Z"]]
+
+# Use the Wals estimator to get the LATE
+ITT / ITT_D
+```
+
+
+And now let's estimate the LATE using 2SLS, which we will see mechanically gives us exactly the same point estimate (because we are just doing two bivariate regressions in this case):
+
+```{r 2sls_estimator}
+# literally two steps
+stage_1 <- lm_robust(D ~ Z, data)
+stage_2 <- lm_robust(Y ~ stage_1$fitted.values, data)
+summary(stage_2)
+
+# We can also do this with estimatr::iv_robust()
+iv_model <- estimatr::iv_robust(Y ~ D | Z, data, diagnostic = TRUE, se = "HC2")
+
+# Let's check the results:
+iv_model %>%
+    broom::tidy()
+
+# broom::glance() can be used to retrieve some diagnostics (if we set diagnostic = TRUE in iv_robust())
+# See `?glance.iv_robust()` for more details
+
+iv_model %>%
+    broom::glance() %>%
+    t()
+```
+
+
+## Part 3: Regression Discontinuity (RD)
+
+Let's clean up our environment once more.
+
+```{r cleanup2}
+rm(list = ls())
+```
+
+
+### Simulation
+
+We will first simulate the potential outcomes $Y$ as a function of $D$ and $X$.
+
+```{r generate_treatment_po_rd}
+N <- 1000
+LATE <- 2
+c <- 5 # we won't use this just yet
+
+data <- tibble(
+    # First, assign X and U:
+    X = runif(N, 0, 10),
+    U = rnorm(N),
+    Q = rnorm(N),
+    # Next, assign Y0:
+    Y0 = 1 + 0.5 * X - 0.05 * (X^2) + 0.025 * (X^3) - 0.0025 * (X^4) + 0.5 * U,
+    Y1 = Y0 + rnorm(N, LATE, 0.25) - 0.5 * X + 0.1 * (X^2)
+)
+
+```
+
+
+Let's visualize our two sets of potential outcomes. Which lines would we normally be able to observe?
+
+```{r po_analyze}
+ggplot(data, aes(x = X, y = Y0)) +
+    geom_point(color = "darkblue", alpha = 0.2) +
+    geom_smooth(color = "darkblue", method = "loess", se = F) +
+    geom_point(aes(y = Y1), color = "darkred", alpha = 0.2) +
+    geom_smooth(aes(y = Y1), color = "darkred", method = "loess", se = F) +
+    geom_vline(xintercept = c) +
+    labs(title = "Potential Outcomes", x = "X", y = "Y0, Y1") +
+    theme_minimal()
+
+# ATE: Note, this is not going to be the same as the LATE we set. Why?
+mean(data$Y1) - mean(data$Y0)
+
+```
+
+
+### Assigning Treatment, and Realising Outcomes
+
+We have our potential outcomes for the outcome variable, so we can assign $D$, and realize $Y$. Recall, our cutpoint is $c = 5$.
+
+```{r assign_treatment}
+data <- data %>%
+    mutate(
+        D = ifelse(X >= c, 1, 0),
+        Y = Y1 * D + Y0 * (1 - D)
+    )
+
+```
+
+
+Let's look now at the realized treatment, and realized outcomes we observe:
+
+```{r realized_data}
+ggplot(data[data$X < c, ], aes(x = X, y = D)) +
+    geom_point(color = "darkblue", alpha = 0.5) +
+    geom_point(data = data[data$X >= c, ], aes(y = D), color = "darkred", alpha = 0.5) +
+    geom_vline(xintercept = c) +
+    labs(title = "Realized Treatment Status", x = "X", y = "Treatment (D = 0,1)") +
+    theme_minimal()
+
+ggplot(data = data, aes(x = X, y = Y0)) +
+    geom_smooth(color = "darkblue", method = "loess", alpha = 0.1, se = F) +
+    geom_smooth(aes(y = Y1), color = "darkred", method = "loess", alpha = 0.1, se = F) +
+    geom_point(data = data[data$X < c, ], color = "darkblue", alpha = 0.5) +
+    geom_point(data = data[data$X >= c, ], aes(y = Y), color = "darkred", alpha = 0.5) +
+    geom_vline(xintercept = c) +
+    labs(title = "Realized Treatment Status", x = "X", y = "Treatment (D = 0,1)") +
+    theme_minimal()
+
+```
+
+
+### Analysis
+
+Let's start by checking that the naive comparison does not work in the way we hope it would:
+
+```{r naive_analysis_rd}
+summary(lm_robust(Y ~ D, data))
+
+```
+
+
+Let's try the local approximation approach proposed by Cattaneo et al (2020). The function is called `rdrobust()` and we have to specify the dependent variable, the running variable, and the cutpoint. 
+What does the output tell us?
+
+```{r rdrobust}
+# Note that the default rdrobust analysis gives us the conventional point estimates + SEs, and the robust bias-corrected SEs
+rd_est <- rdrobust(y = data$Y, x = data$X, c = 5)
+summary(rd_est)
+
+```
+
+
+We could also do this "by hand", making assumptions about the functional form of the relationship between $Y$ and $X$ and using the full sample (or a manually selected bandwidth). Let's try this out for 
+
+- common slopes
+
+- variable slopes
+
+- variable slopes and 2nd order polynomial
+
+- variable slopes and 3rd order polynomial
+
+```{r parametric_estimator}
+# First, we need to recenter X around the cutpoint c
+data <- data %>%
+    mutate(X_rec = X - c)
+
+# Common slopes:
+summary(lm_robust(Y ~ D + X_rec, data))
+
+# Variable slopes:
+summary(lm_robust(Y ~ D * X_rec, data))
+
+# Variable slopes and 2nd order polynomial
+summary(lm_robust(Y ~ D + D * X_rec + D * (I(X_rec^2)), data))
+
+# Variable slopes and 3rd order polynomial
+summary(lm_robust(Y ~ D + D * X_rec + D * (I(X_rec^2)) + D * (I(X_rec^3)), data))
+
+```
+
+
+The {rdrobust} package also provides a nice function called `rdplot` to plot the underlying data:
+
+```{r rdplot}
+rdplot(x = data$X, y = data$Y, c = 5, x.label = "Running Variable (X)", y.label = "Density")
+```
+
+
+### Diagnostic Plots
+
+One of the key assumption of RD designs is continuity of the potential outcomes at the cutpoint. This assumption is violated if individuals sort (self-select) into treatment or control. However, if this happens, it can leave traces in the data that we can detect. Namely, we get a jump in the density of the running variable at the cutpoint. We can test for this using the `rddensity()` and `rdplotdensity()` functions from the {rddensity} package:
+
+```{r density_plot}
+density_test <- rddensity::rddensity(data$X, c = 5)
+summary(density_test)
+
+rddensity::rdplotdensity(density_test, data$X)$Estplot
+```
+
+
+## Part 4: Your Turn to Conduct a Difference-in-Differences Analysis
+
+In this part, you will replicate the analysis of Card and Krueger (1994) on the impact of minimum wage increases on employment in New Jersey and Pennsylvania. A pre-cleaned version of the data is available in the data folder of this seminar. The original data is available [here](https://davidcard.berkeley.edu/data_sets.html). 
+
+On April 1, 1992, New Jersey raised its minimum wage from \$4.25 to \$5.05 per hour, while neighboring Pennsylvania kept its minimum wage unchanged at \$4.25. Card and Krueger surveyed 410 fast-food restaurants (Burger King, KFC, Roy Rogers, and Wendy's) in New Jersey and eastern Pennsylvania in February 1992 (before the change) and November 1992 (after the change), collecting data on employment and wages. 
+
+Your task is to estimate the impact of the minimum wage increase on employment using a Difference-in-Differences (DiD) approach. The dependent variable is *full-time equivalent employment* `fte`, which is calculated as the sum of full-time employees (`empft`), the number of managers (`nmgrs`) and half of the number of part-time employees (`emppt`). 
+
+First, import the data and create the `G`, `t` and `Z`  variables.
+
+```{r prep_ck}
+ck_did <- readr::read_csv("/Users/anton/Library/CloudStorage/OneDrive-LondonSchoolofEconomics/Teaching/2025/ME314_prep/labs/seminar6/data/ck_did.csv")
+
+table(ck_did$state)
+table(ck_did$observation)
+
+ck_did <- ck_did %>%
+    mutate(
+        G = ifelse(state == "New Jersey", 1, 0), # Group: 1 for NJ, 0 for PA
+        t = ifelse(observation == "November 1992", 1, 0), # Time: 1 for post, 0 for pre treatment
+        Z = G * t # Treatment indicator
+    )
+```
+
+
+Next, estimate the ATT by estimating a DiD model using the Difference-in-Means estimator. 
+
+```{r ck_dim}
+ck_did %>%
+    group_by(G, t) %>%
+    summarise(
+        fte_mean = mean(fte, na.rm = TRUE)
+    )
+
+G0t0 <- mean(ck_did$fte[ck_did$G == 0 & ck_did$t == 0], na.rm = TRUE)
+G0t1 <- mean(ck_did$fte[ck_did$G == 0 & ck_did$t == 1], na.rm = TRUE)
+G1t0 <- mean(ck_did$fte[ck_did$G == 1 & ck_did$t == 0], na.rm = TRUE)
+G1t1 <- mean(ck_did$fte[ck_did$G == 1 & ck_did$t == 1], na.rm = TRUE)
+
+ATT_dim <- (G1t1 - G1t0) - (G0t1 - G0t0)
+```
+
+
+Now, estimate the ATT using a regression model with robust standard errors. Estimate the ATT using both the 2x2 and TWFE approaches and call the results `ck_2x2` and `ck_twfe` respectively. Create a regression table showing the two models using the `modelsummary` package and interpret the results.
+
+```{r ck_regression}
+ck_2x2 <- lm_robust(fte ~ G * t, data = ck_did)
+ck_twfe <- lm_robust(fte ~ Z + factor(t) + factor(G), data = ck_did)
+
+modelsummary(list(ck_2x2, ck_twfe),
+    statistic = "std.error",
+    stars = T
+)
+```
+
+
+How confident are you that the assumptions for DiD hold? If you could travel back in time and collect some additional data to corroborate them, what would you collect?
+
+::: {.callout-tip collapse="true" title="Answer"}
+We might have doubts about the parallel trends assumption. While we can never test the assumption (remember, it is about parallel trends in the potential outcomes, which we cannot observe), we can look at the pre-treatment trends in the data. If they are parallel, we can be more confident that the assumption holds. So ideally, we would collect data on employment in the two states from the years before the minimum wage raise. 
+:::
+
+## Part 5: Your Turn to Conduct an Instrumental Variables Analysis
+
+In this part, you will work with the `CigarettesSW` dataset from the `AER` package. Our goal is to estimate the effect of cigarette prices on smoking. This is tricky because demand and supply dynamics mean that consumption and prices affect each other. There are also a range of plausible confounders between price and consumption, such as regional variation in wealth, education, and other demographics.
+
+Therefore, we will use an instrumental variable (IV) approach to estimate the effect of cigarette prices on smoking. We will use the taxrate on cigarettes as an instrument for the price of cigarettes.
+
+Let's first load the data and take a look at the documentation to understand the variables we have available.
+
+```{r}
+data("CigarettesSW", package = "AER")
+```
+
+
+```{r, eval=F}
+?CigarettesSW
+```
+
+
+Now, draw a directed acyclic graph (DAG) to illustrate the causal relationships between the variables in the dataset. 
+
+
+```{r}
+ggdag::ggdag(
+    dagify(
+        smoke ~ price + U,
+        price ~ tax + U,
+        coords = list(
+            x = c(smoke = 4, price = 1, tax = 1, U = 2.5),
+            y = c(smoke = 0, price = 0, tax = 3, U = 3)
+        )
+    )
+) +
+    theme_void() +
+    remove_axes()
+```
+
+
+What assumptions are we making in this DAG and our analysis in general? 
+
+::: {.callout-tip collapse="true" title="Answer"}
+We are assuming that the tax rate is a valid instrument for the price of cigarettes, meaning that: 
+
+1. The tax rate affects the price of cigarettes (relevance condition).
+2. The tax rate does not affect smoking directly, but only through its effect on the price of cigarettes (exclusion restriction).
+3. There are no unobserved confounders that affect both the tax rate and smoking (ignorability).
+4. There are no unobserved confounders that affect both the tax rate and the price of cigarettes (ignorability).
+:::
+
+
+Now, let's estimate the effect of cigarette prices on smoking using the `iv_robust()` function from the `estimatr` package. Test the relevance assumption and output the results of the second stage in a regression table using the `modelsummary`. 
+
+```{r}
+iv_result <- iv_robust(
+    packs ~ price | taxs,
+    data = CigarettesSW,
+    diagnostic = TRUE,
+    se = "HC2"
+)
+
+# look at f-statistic for fist stage for relevance
+broom::glance(iv_result)$statistic.weakinst
+broom::glance(iv_result)$p.value.weakinst
+
+# or simply
+summary(lm(price ~ taxs, data = CigarettesSW))$fstatistic["value"]
+
+# Now, let's create a regression table with the results:
+modelsummary(iv_result, statistic = "std.error", stars = TRUE)
+```
+
+
+## Part 6: Your Turn to Conduct a Regression Discontinuity Analysis
+
+Finally, let's run a Regression Discontinuity (RD) analysis! We will study whether there is an "incumbency advantage" in the US Senate elections. We use data from the `rdrobust` package, which contains information on US Senate elections from 1914-2010. The dataset includes only two variables: the Democratic candidate's margin of victory in a Senate election (measured in percentage points, with negative values indicating the Democrat lost) and the Democratic vote share in the next election for that same Senate seat. Each observation represents a single Senate election, and the RD design compares elections where the Democratic party barely won to those where they barely lost, allowing us to estimate the causal effect of winning (and thus holding incumbency) on the Democratic party's vote share in the subsequent election.
+
+First, import the data and take a look at it. 
+
+```{r}
+data("rdrobust_RDsenate", package = "rdrobust")
+#  let's assign a shorter name
+vote_dat <- rdrobust_RDsenate
+head(vote_dat)
+```
+
+```{r, eval=F}
+?rdrobust::rdrobust_RDsenate
+```
+
+How would you analyze this data using a regression discontinuity design? What is the running variable, what the outcome variable? Is this a sharp or fuzzy RD design?
+
+::: {.callout-tip collapse="true" title="Answer"}
+The running variable is the margin of victory in the last election, and the outcome variable is the vote share in the next election. This is a sharp RD design, as we assume that the treatment (incumbency) is assigned based on the running variable (margin of victory) without any uncertainty. If a democrat is elected, a democrat will be incumbent in the next election.
+:::
+
+
+Let's first visualize the data using the `rdplot()` function from the `rdrobust` package. Specify the cutpoint at 0 and use a polynomial of order 4. 
+
+```{r rdplot_senate}
+rdplot(y = vote_dat$vote, x = vote_dat$margin, x.label = "Margin of Victory", y.label = "Vote Share")
+```
+
+
+Next, use the `lm()` function to estimate the LATE using a polynomial of order 4 and varying slopes. 
+
+```{r}
+# First, we need to create the treatment variable D, which is 1 if the margin is greater than or equal to 0, and 0 otherwise
+vote_dat <- vote_dat %>%
+    mutate(
+        D = ifelse(margin >= 0, 1, 0)
+    )
+
+# Now estimate the LATE using a polynomial of order 4 and varying slopes
+summary(lm_robust(vote ~ D + D * margin + D * (I(margin^2)) + D * (I(margin^3)) + D * (I(margin^4)), vote_dat))
+```
+
+
+Finally, use the `rdrobust()` function to estimate the LATE using the local approximation approach. Call the resulting object `rd_result`. Let the function choose the optimal bandwidth and polynomial order. Compare the results to that of the regression model above. Why do the results differ? 
+
+```{r}
+rd_result <- rdrobust(vote_dat$vote, vote_dat$margin, c = 0)
+summary(rd_result)
+```
+
+
+::: {.callout-tip collapse="true" title="Answer"}
+The rdrobust function estimates a smaller LATE than the regression model (7.4 vs. 9.5). There are several reasons for this:
+
+- The rdrobust function uses a **local** linear regression, which means that only observations within a certain bandwidth around the cutpoint are used to estimate the LATE. The regression model, on the other hand, uses all observations in the sample.
+
+- The rdrobust function used a **polynomial of order 1** to estimate the LATE, while the regression model used a polynomial of order 4. 
+
+- The rdrobust function gives more weight to observations closer to the cutpoint, while the regression model gives equal weight to all observations.
+
+:::
+
+
+## By the end of this seminar, you will be able to:
+
+- Estimate and interpret DiD models using the 2x2 and TWFE approaches
+
+- Estimate and interpret IV models
+
+- Estimate and interpret sharp and fuzzy RD designs
+
+- Create and understand typical diagnostic plots for DiD and RD designs
+
+
