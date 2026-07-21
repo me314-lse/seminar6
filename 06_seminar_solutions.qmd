@@ -1,0 +1,595 @@
+---
+title: "Seminar 6: Causal Inference 2- Solution"
+subtitle: "LSE ME314: Introduction to Data Science and Machine Learning"
+date-modified: "21 July 2026"
+toc: true
+format: html
+execute:
+  echo: true
+  eval: false
+---
+
+## Plan for today:
+
+- Learn how to estimate Difference-in-Differences (DiD) models using the 2x2 and TWFE approaches
+
+- Create diagnostic plots to scrutinize parallel pre-trends
+
+- Learn to estimate sharp and fuzzy regression discontinuity (RD) designs using the `rdrobust` package
+
+- Create diagnostic plots for RD designs using the `rdplot()` function
+
+## Introduction
+
+In today's seminar, we will gain practical experience with causal inference. Let's start by loading the packages we will need for this seminar.
+
+```{r setup_r,message=FALSE,warning=FALSE}
+
+# load packages
+package_check <- function(need = c()) {
+  have <- need %in% rownames(installed.packages()) # checks packages you have
+  if (any(!have)) {
+    install.packages(need[!have])
+  } # install missing packages
+  invisible(lapply(need, library, character.only = TRUE))
+}
+
+required_packages <- c(
+  "dplyr", # for data management
+  "readr", # for reading data files
+  "estimatr", # for regression with robust standard errors AND for IV estimation
+  "broom", # for tidying model output
+  "modelsummary", # for prettier model output tables and balance tables
+  "ggplot2", # for plotting
+  "ggdag", # for plotting directed acyclic graphs
+  "rdrobust", # for regression discontinuity designs
+  "rddensity", # for rd diagnostics
+  "AER" # for more toy datasets
+)
+
+package_check(required_packages)
+
+set.seed(12345)
+```
+
+
+## Part 1: Difference-in-Differences (DiD)
+
+In this section, we will learn how to estimate Difference-in-Differences (DiD) models using the 2x2 and Two-Way Fixed Effects (TWFE) approaches.
+
+DiD is one of the most widely used quasi-experimental designs in applied economics and policy evaluation, precisely because it doesn't require a true randomized experiment, it only requires a treated group, a comparison group, and data both before and after treatment. The logic behind DID is that if the event never happens, the differences between treatment and control groups should stay the same overtime. Today we'll build our intuition for *when* that's enough, and when it isn't.
+
+::: {.callout-note title="💬 Discuss before we simulate anything"}
+In your group, think of a real policy change that affected one place/group but not a similar one nearby (e.g. a tax change in one state, a new law in one country). What would you need to assume about the *comparison* group for a before/after comparison to isolate the policy's effect? Keep this in mind, it's exactly the assumption we're about to build and then test.
+:::
+
+### Simulation
+Assume we have two time periods ($T = 0, 1$) and two groups ($G = 0, 1$). We are interested in the effect of a treatment $Z$, which switches on in time period $T=1$, on an outcome $Y$. We will assume a panel data setting in which units are observed three times ($T = -1, 0, 1$).
+
+Given this setup, we can now simulate a dataset with 1000 units (3000 observations). We will first simulate the potential outcomes $Y0$ and $Y1$ as a function of $T$, $Z$, and an error term.
+
+```{r simulate_data_2x2}
+N <- 1000
+ATE <- 2
+
+set.seed(123)
+data <- tibble(
+  # First, create a unit id such that each observation is observed three times:
+  id = sort(rep(1:N, 3)),
+  # Now, generate our time variable such that each observation is observed in all three periods:
+  t = rep(c(-1, 0, 1), N),
+  # Next, generate our group variable such that each observation is in one of two groups:
+  G = c(replicate(N, rep(sample(c(0, 1), 1), 3))),
+  Z = ifelse(t == 1, G, 0),
+  # Assign our error term as an idiosyncratic term:
+  U = rnorm(N * 3),
+  # Generate Y0 as a function of U, G, and t:
+  Y0 = 1 + 0.5 * t + 1 * G + 2 * U,
+  # Generate Y1 as a function of Y0, the ATE, and t:
+  Y1 = Y0 + rnorm(N, ATE, 0.25),
+  # Realize Y from PO and Z:
+  Y = Y1 * Z + Y0 * (1 - Z)
+)
+
+# Let's check our ATT in post-period (given our DGP, = ATE):
+mean(data$Y1[data$Z == 1]) - mean(data$Y0[data$Z == 1])
+```
+
+
+Let's visualize our data and our missing potential outcome.
+
+::: {.callout-note title="Predict first"}
+Before running the code below, sketch on paper (or just describe to your group) what you expect these four lines to look like. Given our DGP, should the lines for group G=0 and G=1 be parallel *before* treatment switches on? Should they diverge *after* it switches on? Which of the four lines do we actually get to observe in real data, and which is the one we've simulated only so we can peek at the "truth"?
+:::
+
+Which lines would we normally be able to observe?
+
+```{r po_visualize_2x2}
+y_sum <- data %>%
+  group_by(t, G) %>%
+  summarise(
+    Y_mean = mean(Y),
+    Y_se = sd(Y) / sqrt(sum(!is.na(Y)))
+  ) %>%
+  ungroup() %>%
+  mutate(Outcome = c(rep(c("Y|G=0", "Y|G=1"), 3)))
+
+y0_sum <- data %>%
+  filter(G == 1) %>%
+  group_by(t, G) %>%
+  summarise(
+    Y_mean = mean(Y0),
+    Y_se = sd(Y0) / sqrt(sum(!is.na(Y0)))
+  ) %>%
+  ungroup() %>%
+  mutate(Outcome = c(rep("Y(0)|G=1", 3)))
+
+y_plot <- y_sum %>%
+  rbind(y0_sum)
+
+ggplot(y_plot, aes(x = t, y = Y_mean, color = Outcome)) +
+  geom_line(alpha = 0.9) +
+  geom_point(alpha = 0.9) +
+  geom_errorbar(
+    aes(ymin = Y_mean - 1.96 * Y_se, ymax = Y_mean + 1.96 * Y_se),
+    width = 0
+  ) +
+  labs(title = "Diff-in-Diff", x = "Time", y = "Y", color = "Treatment Group") +
+  theme_minimal()
+```
+
+
+### Analysis
+
+
+Let's begin with a naive comparison. We simply compare the average outcome between the treatment and control group. What would have to be true for this to give us the ATE?
+
+::: {.callout-note title="💬 Discuss first"}
+Before writing any code: as a group, state out loud the exact assumption needed for a simple post-period comparison between G=0 and G=1 to equal the ATE. Does that assumption hold in *our* simulated data? Look back at how `Y0` was generated — is there a term in there that would break this?
+:::
+
+```{r naive_analysis_2x2}
+# Your code goes here
+summary(lm_robust(Y ~ G, data))
+```
+
+:::{.callout-tip collapse="true" title="Answer"}
+For the naive post-period comparison, $E[Y \mid G=1, t=1] - E[Y \mid G=0, t=1]$, to equal the ATE, we would need:
+
+$$E[Y(0) \mid G=1] = E[Y(0) \mid G=0]$$
+
+In words: the treatment and control groups would need to have the **same average untreated outcome**, no baseline differences between them apart from treatment status itself. This is the "no selection bias" / mean-independence condition.
+
+**Why:** the naive comparison decomposes as
+
+$$\underbrace{E[Y_1 \mid G=1] - E[Y_0 \mid G=0]}_{\text{naive comparison}} = \underbrace{E[Y_1 \mid G=1] - E[Y_0 \mid G=1]}_{\text{ATT (what we want)}} + \underbrace{E[Y_0 \mid G=1] - E[Y_0 \mid G=0]}_{\text{selection bias}}$$
+
+That second term needs to be zero for the naive comparison to isolate the treatment effect.
+
+**In our simulated data, this fails.** Look at how `Y0` was generated: `Y0 = 1 + 0.5 * t + 1 * G + 2 * U`. There's a `+ 1 * G` baked directly into the untreated outcome: Group 1 has a baseline level exactly one unit higher than Group 0, regardless of treatment. So the naive post-period comparison won't recover `ATE = 2,  it will recover something closer to 3 (the true effect plus that baseline gap).
+
+Because treatment assignment is not independent of background characteristics, the ATT is potentially *meaningfully* different from the ATE. In DiD, the control group is used to construct a counterfactual for the treated group under parallel trends.  The assumption is explicitly about what the **treated group would have done** absent treatment — not about what would happen if you treated the control group. So the **estimand** is naturally the **ATT**.
+:::
+
+
+
+Now let's try to implement the diff-in-diff by actually calculating all the necessary differences by hand.
+
+```{r plug_in_estimator_2x2}
+# Your code goes here
+
+means <- data %>%
+  group_by(G, t) %>%
+  summarise(
+    Y_mean = mean(Y)
+  ) %>%
+  ungroup()
+
+# Pull out each of the four cells by name:
+y_control_pre <- means$Y_mean[means$G == 0 & means$t == 0]
+y_control_post <- means$Y_mean[means$G == 0 & means$t == 1]
+y_treat_pre <- means$Y_mean[means$G == 1 & means$t == 0]
+y_treat_post <- means$Y_mean[means$G == 1 & means$t == 1]
+
+# Diff-in-diff: change for treatment group minus change for control group
+(y_treat_post - y_treat_pre) - (y_control_post - y_control_pre)
+```
+
+
+Now, let's do the same exercise using our 2x2 or TWFE regression specifications:
+
+```{r regression_2x2}
+# Standard regression estimator
+lm_robust(Y ~ G * t, data[data$t > -1, ])
+
+# Two-way fixed effects estimator
+lm_robust(Y ~ Z + factor(id) + factor(t), data[data$t > -1, ])$coef[1:10]
+```
+
+
+Finally, let's try and falsify the design by checking parallel pre-trends. We can do this by estimating the effect at
+$t = 0$ (instead of $t = 1$). In other words, we pretend that the treatment had taken effect one time period earlier than it actually did. If we see a significant effect here, that means that the difference between the groups wasn't constant before the treatment.
+
+```{r parallel_pre_trends_2x2}
+# Standard regression estimator
+data_pretrend <- data %>%
+  filter(t < 1) %>%
+  mutate(t = t + 1)
+
+lm_robust(Y ~ G * t, data_pretrend)
+```
+
+
+## Part 2: Regression Discontinuity (RD)
+
+RD designs exploit situations where treatment is assigned based on whether some running variable crosses a cutoff — a test score, an age threshold, a vote margin. The core idea: units just above and just below the cutoff should be nearly identical in everything *except* treatment, so comparing them close to the cutoff approximates a randomized comparison, even though nobody randomized anything.
+
+Let's clean up our environment once more.
+
+```{r cleanup2}
+rm(list = ls())
+```
+
+
+### Simulation
+
+We will first simulate the potential outcomes $Y$ as a function of $D$ and $X$.
+
+```{r generate_treatment_po_rd}
+N <- 1000
+LATE <- 2
+c <- 5 # we won't use this just yet
+
+data <- tibble(
+  # First, assign X and U:
+  X = runif(N, 0, 10),
+  U = rnorm(N),
+  Q = rnorm(N),
+  # Next, assign Y0:
+  Y0 = 1 + 0.5 * X - 0.05 * (X^2) + 0.025 * (X^3) - 0.0025 * (X^4) + 0.5 * U,
+  Y1 = Y0 + rnorm(N, LATE, 0.25) - 0.5 * X + 0.1 * (X^2)
+)
+```
+
+Let's visualize our two sets of potential outcomes. Which lines would we normally be able to observe?
+
+```{r po_analyze}
+ggplot(data, aes(x = X, y = Y0)) +
+  geom_point(color = "darkblue", alpha = 0.2) +
+  geom_smooth(color = "darkblue", method = "loess", se = FALSE) +
+  geom_point(aes(y = Y1), color = "darkred", alpha = 0.2) +
+  geom_smooth(aes(y = Y1), color = "darkred", method = "loess", se = FALSE) +
+  geom_vline(xintercept = c) +
+  labs(title = "Potential Outcomes", x = "X", y = "Y0, Y1") +
+  theme_minimal()
+
+# ATE: Note, this is not going to be the same as the LATE we set. Why?
+mean(data$Y1) - mean(data$Y0)
+```
+
+
+### Assigning Treatment, and Realising Outcomes
+
+We have our potential outcomes for the outcome variable, so we can assign $D$, and realize $Y$. Generate the treatment indicator $D$ and let's reveal the outcomes $Y$.
+
+```{r assign_treatment}
+# Your code goes here
+
+data <- data %>%
+  mutate(
+    D = ifelse(X >= c, 1, 0),
+    Y = Y1 * D + Y0 * (1 - D)
+  )
+```
+
+
+::: {.callout-note title="Predict First"}
+Before running the plots below, sketch what you expect: at the cutpoint, should there be a visible "jump" in the realized outcome `Y`? Should the underlying `Y0`/`Y1` curves themselves jump, or only what we observe? Discuss with your group, then compare to what actually renders.
+:::
+
+
+Let's look now at the realized treatment, and realized outcomes we observe:
+
+```{r realized_data}
+ggplot(data[data$X < c, ], aes(x = X, y = D)) +
+  geom_point(color = "darkblue", alpha = 0.5) +
+  geom_point(
+    data = data[data$X >= c, ],
+    aes(y = D),
+    color = "darkred",
+    alpha = 0.5
+  ) +
+  geom_vline(xintercept = c) +
+  labs(
+    title = "Realized Treatment Status",
+    x = "X",
+    y = "Treatment (D = 0,1)"
+  ) +
+  theme_minimal()
+
+ggplot(data = data, aes(x = X, y = Y0)) +
+  geom_smooth(color = "darkblue", method = "loess", alpha = 0.1, se = FALSE) +
+  geom_smooth(
+    aes(y = Y1),
+    color = "darkred",
+    method = "loess",
+    alpha = 0.1,
+    se = FALSE
+  ) +
+  geom_point(data = data[data$X < c, ], color = "darkblue", alpha = 0.5) +
+  geom_point(
+    data = data[data$X >= c, ],
+    aes(y = Y),
+    color = "darkred",
+    alpha = 0.5
+  ) +
+  geom_vline(xintercept = c) +
+  labs(title = "Realized Outcomes", x = "X", y = "Y") +
+  theme_minimal()
+```
+
+
+### Analysis
+
+Let's start by checking that the naive comparison does not work in the way we hope it would:
+
+```{r naive_analysis_rd}
+# Your code goes here
+summary(lm_robust(Y ~ D, data))
+```
+
+
+Let's try the local approximation approach proposed by Cattaneo et al (2020). The function is called `rdrobust()` and we have to specify the dependent variable, the running variable, and the cutpoint.
+What does the output tell us?
+
+```{r rdrobust}
+# Your code goes here
+
+rd_est <- rdrobust(y = data$Y, x = data$X, c = 5)
+summary(rd_est)
+```
+
+
+We could also do this "by hand", making assumptions about the functional form of the relationship between $Y$ and $X$ and using the full sample (or a manually selected bandwidth).
+
+Let's try this out for
+
+- common slopes
+
+- variable slopes
+
+- variable slopes and 2nd order polynomial
+
+- variable slopes and 3rd order polynomial
+
+```{r parametric_estimator}
+
+# First, we need to recenter X around the cutpoint c
+data <- data %>%
+  mutate(X_rec = X - c)
+
+# Common slopes:
+summary(lm_robust(Y ~ D + X_rec, data))
+
+# Variable slopes:
+summary(lm_robust(Y ~ D * X_rec, data))
+
+# Variable slopes and 2nd order polynomial
+summary(lm_robust(Y ~ D + D * X_rec + D * (I(X_rec^2)), data))
+
+# Variable slopes and 3rd order polynomial
+summary(lm_robust(
+  Y ~ D + D * X_rec + D * (I(X_rec^2)) + D * (I(X_rec^3)),
+  data
+))
+```
+
+
+The {rdrobust} package also provides a nice function called `rdplot` to plot the underlying data:
+
+```{r rdplot}
+
+rdplot(
+  x = data$X,
+  y = data$Y,
+  c = 5,
+  x.label = "Running Variable (X)",
+  y.label = "Outcome (Y)"
+)
+```
+
+
+### Diagnostic Plots
+
+One of the key assumptions of RD designs is continuity of the potential outcomes at the cutpoint. This assumption is violated if individuals sort (self-select) into treatment or control. However, if this happens, it can leave traces in the data that we can detect. Namely, we get a jump in the density of the running variable at the cutpoint. We can test for this using the `rddensity()` and `rdplotdensity()` functions from the {rddensity} package:
+
+```{r density_plot}
+density_test <- rddensity::rddensity(data$X, c = 5)
+summary(density_test)
+
+rddensity::rdplotdensity(density_test, data$X)$Estplot
+```
+
+::: {.callout-note title="💬 Discuss"}
+This diagnostic exists because *some* running variables can be manipulated by the people being assigned to treatment, and others basically can't. In your group, come up with one example of each:
+
+- A running variable someone could plausibly manipulate to land just on the "winning" side of a cutoff (think about who controls the number, and whether they have an incentive to nudge it).
+- A running variable that would be very hard for anyone to manipulate.
+
+Keep your second example in mind for Part 5 — you'll be asked exactly this question about a real dataset.
+:::
+
+
+## Part 4: Your Turn to Conduct a Difference-in-Differences Analysis
+
+In this part, you will replicate the analysis of Card and Krueger (1994) on the impact of minimum wage increases on employment in New Jersey and Pennsylvania. A pre-cleaned version of the data is available in the data folder of this seminar. The original data is available [here](https://davidcard.berkeley.edu/data_sets.html).
+
+On April 1, 1992, New Jersey raised its minimum wage from \$4.25 to \$5.05 per hour, while neighboring Pennsylvania kept its minimum wage unchanged at \$4.25. Card and Krueger surveyed 410 fast-food restaurants (Burger King, KFC, Roy Rogers, and Wendy's) in New Jersey and eastern Pennsylvania in February 1992 (before the change) and November 1992 (after the change), collecting data on employment and wages.
+
+Your task is to estimate the impact of the minimum wage increase on employment using a Difference-in-Differences (DiD) approach. The dependent variable is *full-time equivalent employment* `fte`, which is calculated as the sum of full-time employees (`empft`), the number of managers (`nmgrs`) and half of the number of part-time employees (`emppt`).
+
+::: {.callout-note title="💬 Predict before you compute as a group"}
+Standard competitive labour-market theory says a minimum wage increase should *reduce* employment (firms hire fewer workers if labour becomes more expensive). Before running any numbers:
+
+1. As a group, agree on a prediction: will `fte` fall in New Jersey relative to Pennsylvania after the wage rise? By roughly how much (in FTE per store), if at all?
+2. Write your prediction down somewhere visible (whiteboard, shared doc, sticky note) before you touch the data.
+
+This finding was controversial enough to spark a decades-long debate in labour economics when it was first published — keep your prediction handy for after you've run the numbers.
+:::
+
+First, import the data and create the `G`, `t` and `Z`  variables.
+
+```{r prep_ck}
+ck_did <- readr::read_csv("2026_versions/Seminar6/data/ck_did.csv")
+
+table(ck_did$state)
+table(ck_did$observation)
+
+ck_did <- ck_did %>%
+  mutate(
+    G = ifelse(state == "New Jersey", 1, 0), # Group: 1 for NJ, 0 for PA
+    t = ifelse(observation == "November 1992", 1, 0), # Time: 1 for post, 0 for pre treatment
+    Z = G * t # Treatment indicator
+  )
+```
+
+
+Next, estimate the ATT by estimating a DiD model using the Difference-in-Means estimator.
+
+```{r ck_dim}
+
+ck_did %>%
+  group_by(G, t) %>%
+  summarise(
+    fte_mean = mean(fte, na.rm = TRUE)
+  )
+
+G0t0 <- mean(ck_did$fte[ck_did$G == 0 & ck_did$t == 0], na.rm = TRUE)
+G0t1 <- mean(ck_did$fte[ck_did$G == 0 & ck_did$t == 1], na.rm = TRUE)
+G1t0 <- mean(ck_did$fte[ck_did$G == 1 & ck_did$t == 0], na.rm = TRUE)
+G1t1 <- mean(ck_did$fte[ck_did$G == 1 & ck_did$t == 1], na.rm = TRUE)
+
+ATT_dim <- (G1t1 - G1t0) - (G0t1 - G0t0)
+```
+
+
+Now, estimate the ATT using a regression model with robust standard errors. Estimate the ATT using both the 2x2 and TWFE approaches and call the results `ck_2x2` and `ck_twfe` respectively. Create a regression table showing the two models using the `modelsummary` package and interpret the results.
+
+```{r ck_regression}
+
+ck_2x2 <- lm_robust(fte ~ G * t, data = ck_did)
+
+ck_twfe <- lm_robust(fte ~ Z + factor(t) + factor(G), data = ck_did)
+
+modelsummary(list(ck_2x2, ck_twfe), statistic = "std.error", stars = TRUE)
+```
+
+
+How confident are you that the assumptions for DiD hold? If you could travel back in time and collect some additional data to corroborate them, what would you collect?
+
+::: {.callout-note title="👥 Group discussion"}
+First — revisit the prediction you wrote down earlier. How far off was it, and does your group have a story for *why* (was your intuition about labour demand wrong, or is something else going on in this data)? Then discuss the assumptions question below and be ready to share one point with the class.
+:::
+
+::: {.callout-tip collapse="true" title="Answer"}
+We might have doubts about the parallel trends assumption. While we can never test the assumption (remember, it is about parallel trends in the potential outcomes, which we cannot observe), we can look at the pre-treatment trends in the data. If they are parallel, we can be more confident that the assumption holds. So ideally, we would collect data on employment in the two states from the years before the minimum wage raise.
+:::
+
+## Part 5: Your Turn to Conduct a Regression Discontinuity Analysis
+
+Finally, let's run a Regression Discontinuity (RD) analysis! We will study whether there is an "incumbency advantage" in the US Senate elections. We use data from the `rdrobust` package, which contains information on US Senate elections from 1914-2010. The dataset includes only two variables: the Democratic candidate's margin of victory in a Senate election (measured in percentage points, with negative values indicating the Democrat lost) and the Democratic vote share in the next election for that same Senate seat. Each observation represents a single Senate election, and the RD design compares elections where the Democratic party barely won to those where they barely lost, allowing us to estimate the causal effect of winning (and thus holding incumbency) on the Democratic party's vote share in the subsequent election.
+
+First, import the data and take a look at it.
+
+::: {.callout-note title="💬 Predict before you compute"}
+As a group: do you expect a meaningful "incumbency advantage" here — i.e. does narrowly winning a Senate election causally boost a party's vote share *next* time, beyond whatever made them competitive in the first place? Agree on a rough magnitude (in percentage points) that would surprise you if you saw it.
+
+Also — recall the manipulability discussion from Part 2. Is the running variable here (margin of victory in a Senate election) one that's easy or hard for anyone to manipulate around the cutoff? Why does that matter for how much you'd trust this design?
+:::
+
+```{r}
+data("rdrobust_RDsenate", package = "rdrobust")
+#  let's assign a shorter name
+vote_dat <- rdrobust_RDsenate
+head(vote_dat)
+```
+
+```{r, eval=FALSE}
+?rdrobust::rdrobust_RDsenate
+```
+
+How would you analyze this data using a regression discontinuity design? What is the running variable, what the outcome variable? Is this a sharp or fuzzy RD design?
+
+::: {.callout-tip collapse="true" title="Answer"}
+The running variable is the margin of victory in the last election, and the outcome variable is the vote share in the next election. This is a sharp RD design, as we assume that the treatment (incumbency) is assigned based on the running variable (margin of victory) without any uncertainty. If a democrat is elected, a democrat will be incumbent in the next election.
+:::
+
+
+Let's first visualize the data using the `rdplot()` function from the `rdrobust` package. Specify the cutpoint at 0 and use a polynomial of order 4.
+
+```{r rdplot_senate}
+
+rdplot(
+  y = vote_dat$vote,
+  x = vote_dat$margin,
+  x.label = "Margin of Victory",
+  y.label = "Vote Share"
+)
+```
+
+
+Next, use the `lm()` function to estimate the LATE using a polynomial of order 4 and varying slopes.
+
+```{r}
+
+# First, we need to create the treatment variable D, which is 1 if the margin is greater than or equal to 0, and 0 otherwise
+vote_dat <- vote_dat %>%
+  mutate(
+    D = ifelse(margin >= 0, 1, 0)
+  )
+
+# Now estimate the LATE using a polynomial of order 4 and varying slopes
+poly4_model <- lm_robust(
+  vote ~ D +
+    D * margin +
+    D * (I(margin^2)) +
+    D * (I(margin^3)) +
+    D * (I(margin^4)),
+  vote_dat
+)
+poly4_D <- coef(poly4_model)[["D"]]
+summary(poly4_model)
+```
+
+
+Finally, use the `rdrobust()` function to estimate the LATE using the local approximation approach. Call the resulting object `rd_result`. Let the function choose the optimal bandwidth and polynomial order. Compare the results to that of the regression model above. Why do the results differ?
+
+```{r}
+rd_result <- rdrobust(vote_dat$vote, vote_dat$margin, c = 0)
+rd_effect <- rd_result$coef[1, 1]
+summary(rd_result)
+```
+
+::: {.callout-note title="👥 Discuss before revealing the answer"}
+With your group, come up with at least two candidate explanations for why `rd_result` and the `lm()` estimate above might differ, based on what you know about how each method uses the data (which observations, what functional form, how much weight each observation gets). Only expand the answer below once your group has a written guess.
+:::
+
+::: {.callout-tip collapse="true" title="Answer"}
+The rdrobust function estimates a smaller LATE than the regression model (7.4 vs. 9.4). There are several reasons for this:
+
+- The rdrobust function uses a **local** linear regression, which means that only observations within a certain bandwidth around the cutpoint are used to estimate the LATE. The regression model, on the other hand, uses all observations in the sample.
+
+- The rdrobust function used a **polynomial of order 1** to estimate the LATE, while the regression model used a polynomial of order 4.
+
+- The rdrobust function gives more weight to observations closer to the cutpoint, while the regression model gives equal weight to all observations.
+
+:::
+
+
+## By the end of this seminar, you will be able to:
+
+- Estimate and interpret DiD models using the 2x2 and TWFE approaches
+
+- Estimate and interpret sharp and fuzzy RD designs
+
+- Create and understand typical diagnostic plots for DiD and RD designs
