@@ -261,21 +261,6 @@ Before running the plots below, sketch what you expect: at the cutpoint, should 
 Let's look now at the realized treatment, and realized outcomes we observe:
 
 ```{r realized_data}
-ggplot(data[data$X < c, ], aes(x = X, y = D)) +
-  geom_point(color = "darkblue", alpha = 0.5) +
-  geom_point(
-    data = data[data$X >= c, ],
-    aes(y = D),
-    color = "darkred",
-    alpha = 0.5
-  ) +
-  geom_vline(xintercept = c) +
-  labs(
-    title = "Realized Treatment Status",
-    x = "X",
-    y = "Treatment (D = 0,1)"
-  ) +
-  theme_minimal()
 
 ggplot(data = data, aes(x = X, y = Y0)) +
   geom_smooth(color = "darkblue", method = "loess", alpha = 0.1, se = FALSE) +
@@ -316,25 +301,6 @@ What does the output tell us?
 # Your code goes here
 
 ```
-
-
-We could also do this "by hand", making assumptions about the functional form of the relationship between $Y$ and $X$ and using the full sample (or a manually selected bandwidth).
-
-Let's try this out for
-
-- common slopes
-
-- variable slopes
-
-- variable slopes and 2nd order polynomial
-
-- variable slopes and 3rd order polynomial
-
-```{r parametric_estimator}
-# Your code goes here
-
-```
-
 
 The {rdrobust} package also provides a nice function called `rdplot` to plot the underlying data:
 
