@@ -1,0 +1,821 @@
+state,observation,empft,emppt,nmgrs,fte
+Pennsylvania,February 1992,30,15,3,40.5
+Pennsylvania,February 1992,6.5,6.5,4,13.75
+Pennsylvania,February 1992,3,7,2,8.5
+Pennsylvania,February 1992,20,20,4,34
+Pennsylvania,February 1992,6,26,5,24
+Pennsylvania,February 1992,0,31,5,20.5
+Pennsylvania,February 1992,50,35,3,70.5
+Pennsylvania,February 1992,10,17,5,23.5
+Pennsylvania,February 1992,2,8,5,11
+Pennsylvania,February 1992,2,10,2,9
+Pennsylvania,February 1992,2.5,20,3,15.5
+Pennsylvania,February 1992,40,30,3,58
+Pennsylvania,February 1992,8,27,5,26.5
+Pennsylvania,February 1992,10.5,30,3,28.5
+Pennsylvania,February 1992,6,9,3,13.5
+Pennsylvania,February 1992,5,17.5,3,16.75
+Pennsylvania,February 1992,1,15,1,9.5
+Pennsylvania,February 1992,10,6,2,15
+Pennsylvania,February 1992,20,13,3,29.5
+Pennsylvania,February 1992,5,23,2,18.5
+Pennsylvania,February 1992,10,12.5,4,20.25
+Pennsylvania,February 1992,27,12,3,36
+Pennsylvania,February 1992,4,28,3,21
+Pennsylvania,February 1992,10,15,3,20.5
+Pennsylvania,February 1992,0,28,5,19
+Pennsylvania,February 1992,3,16,3,14
+Pennsylvania,February 1992,7,16,4,19
+Pennsylvania,February 1992,21,9,7,32.5
+Pennsylvania,February 1992,1,32,2,19
+Pennsylvania,February 1992,10,20,7,27
+Pennsylvania,February 1992,0,27,6,19.5
+Pennsylvania,February 1992,17,4,5,24
+Pennsylvania,February 1992,0,24,6,18
+Pennsylvania,February 1992,25,15,NA,NA
+Pennsylvania,February 1992,6,20,3,19
+Pennsylvania,February 1992,6,10,3,14
+Pennsylvania,February 1992,0,15,3,10.5
+Pennsylvania,February 1992,30,10,3,38
+Pennsylvania,February 1992,8,25,3,23.5
+Pennsylvania,February 1992,0,15,3,10.5
+Pennsylvania,February 1992,10,20,5,25
+Pennsylvania,February 1992,2,12,3,11
+Pennsylvania,February 1992,20,25,4,36.5
+Pennsylvania,February 1992,20,55,5,52.5
+Pennsylvania,February 1992,10,30,4,29
+Pennsylvania,February 1992,15,50,5,45
+Pennsylvania,February 1992,1,37.5,3,22.75
+Pennsylvania,February 1992,0,9,3,7.5
+Pennsylvania,February 1992,0,25,3,15.5
+Pennsylvania,February 1992,30,10,3,38
+Pennsylvania,February 1992,4,19,4,17.5
+Pennsylvania,February 1992,12,20,3,25
+Pennsylvania,February 1992,NA,NA,3,NA
+Pennsylvania,February 1992,8,18,4,21
+Pennsylvania,February 1992,0,25,3,15.5
+Pennsylvania,February 1992,2,21,3,15.5
+Pennsylvania,February 1992,1,9,3,8.5
+Pennsylvania,February 1992,5,20,3,18
+Pennsylvania,February 1992,8,17.5,4,20.75
+Pennsylvania,February 1992,25,20,4,39
+Pennsylvania,February 1992,37.5,2,3,41.5
+Pennsylvania,February 1992,5,27,4,22.5
+Pennsylvania,February 1992,25,8,3,32
+Pennsylvania,February 1992,6,30,3,24
+Pennsylvania,February 1992,8,28,4,26
+Pennsylvania,February 1992,32,25,4,48.5
+Pennsylvania,February 1992,1,9,3,8.5
+Pennsylvania,February 1992,4,25,2,18.5
+Pennsylvania,February 1992,2,16,3,13
+Pennsylvania,February 1992,12,15,3,22.5
+Pennsylvania,February 1992,20,10,3,28
+Pennsylvania,February 1992,14,15,3,24.5
+Pennsylvania,February 1992,7.5,14,4,18.5
+Pennsylvania,February 1992,7,25,4,23.5
+Pennsylvania,February 1992,4,16,3,15
+Pennsylvania,February 1992,5,20,3,18
+Pennsylvania,February 1992,6,22.5,3,20.25
+Pennsylvania,February 1992,2.5,20,3,15.5
+Pennsylvania,February 1992,2,30,4,21
+New Jersey,February 1992,0,22,4,15
+New Jersey,February 1992,0,20,5,15
+New Jersey,February 1992,10,20,4,24
+New Jersey,February 1992,4.5,25.5,2,19.25
+New Jersey,February 1992,0,25,9,21.5
+New Jersey,February 1992,0,13,3,9.5
+New Jersey,February 1992,30,20,4,44
+New Jersey,February 1992,NA,10,3,NA
+New Jersey,February 1992,0,34,4,21
+New Jersey,February 1992,20,10,3,28
+New Jersey,February 1992,0,14,3,10
+New Jersey,February 1992,0,35,3,20.5
+New Jersey,February 1992,15,15,3,25.5
+New Jersey,February 1992,0,30,4,19
+New Jersey,February 1992,5,19,2,16.5
+New Jersey,February 1992,9,10,3,17
+New Jersey,February 1992,0,45,5,27.5
+New Jersey,February 1992,2,2,2,5
+New Jersey,February 1992,10,8,2,16
+New Jersey,February 1992,30,15,4,41.5
+New Jersey,February 1992,4,10,4,13
+New Jersey,February 1992,6,4,2,10
+New Jersey,February 1992,4,16,3,15
+New Jersey,February 1992,12,20,4,26
+New Jersey,February 1992,8,12,4,18
+New Jersey,February 1992,6,50,4,35
+New Jersey,February 1992,13,10,3,21
+New Jersey,February 1992,25,13,3,34.5
+New Jersey,February 1992,8,14.5,3,18.25
+New Jersey,February 1992,12.5,20,2,24.5
+New Jersey,February 1992,7,20,3,20
+New Jersey,February 1992,10,6,3,16
+New Jersey,February 1992,0,25,5,17.5
+New Jersey,February 1992,12.5,10,3,20.5
+New Jersey,February 1992,4,26,3,20
+New Jersey,February 1992,6.5,7.5,2,12.25
+New Jersey,February 1992,20,20,3,33
+New Jersey,February 1992,15,25,4,31.5
+New Jersey,February 1992,NA,NA,2,NA
+New Jersey,February 1992,0,30,3,18
+New Jersey,February 1992,10,30,3,28
+New Jersey,February 1992,5,17,3,16.5
+New Jersey,February 1992,8.5,6.5,3,14.75
+New Jersey,February 1992,4.5,30,4,23.5
+New Jersey,February 1992,1,12,3,10
+New Jersey,February 1992,35,15,4,46.5
+New Jersey,February 1992,10,5,3,15.5
+New Jersey,February 1992,8,25,4,24.5
+New Jersey,February 1992,12,18,3,24
+New Jersey,February 1992,4,30,4,23
+New Jersey,February 1992,20,10,3,28
+New Jersey,February 1992,12,33,4,32.5
+New Jersey,February 1992,10,20,3,23
+New Jersey,February 1992,4,20,3,17
+New Jersey,February 1992,5,42,4,30
+New Jersey,February 1992,8,19,4,21.5
+New Jersey,February 1992,23,10,4,32
+New Jersey,February 1992,0,10,3,8
+New Jersey,February 1992,15,35,3,35.5
+New Jersey,February 1992,15,25,4,31.5
+New Jersey,February 1992,25,10,3,33
+New Jersey,February 1992,15,8,3,22
+New Jersey,February 1992,13,12,4,23
+New Jersey,February 1992,10,18,4,23
+New Jersey,February 1992,0,13,2,8.5
+New Jersey,February 1992,4,11,3,12.5
+New Jersey,February 1992,0,15,2,9.5
+New Jersey,February 1992,5,10,3,13
+New Jersey,February 1992,5,16,4,17
+New Jersey,February 1992,3,8,2,9
+New Jersey,February 1992,8,12,5,19
+New Jersey,February 1992,5,9,2,11.5
+New Jersey,February 1992,3,14,3,13
+New Jersey,February 1992,20,46,5,48
+New Jersey,February 1992,18,45,5,45.5
+New Jersey,February 1992,4,16,3,15
+New Jersey,February 1992,10,10,3,18
+New Jersey,February 1992,2.5,27,5,21
+New Jersey,February 1992,14,7,3,20.5
+New Jersey,February 1992,11.5,10,4,20.5
+New Jersey,February 1992,4.5,20,3,17.5
+New Jersey,February 1992,12,23,4,27.5
+New Jersey,February 1992,14,12,4,24
+New Jersey,February 1992,25,10,4,34
+New Jersey,February 1992,10,8,4,18
+New Jersey,February 1992,10,20,4,24
+New Jersey,February 1992,13,31,NA,NA
+New Jersey,February 1992,12,35,4,33.5
+New Jersey,February 1992,5,10,2,12
+New Jersey,February 1992,3,60,2,35
+New Jersey,February 1992,16,30,4,35
+New Jersey,February 1992,10,6,3,16
+New Jersey,February 1992,6,13,3,15.5
+New Jersey,February 1992,10,12,3,19
+New Jersey,February 1992,5,30,4,24
+New Jersey,February 1992,NA,25,4,NA
+New Jersey,February 1992,12,40,4,36
+New Jersey,February 1992,15,20,4,29
+New Jersey,February 1992,10,30,4,29
+New Jersey,February 1992,6.5,23.5,3,21.25
+New Jersey,February 1992,0,25,3,15.5
+New Jersey,February 1992,3,25,4,19.5
+New Jersey,February 1992,6,22,4,21
+New Jersey,February 1992,0,20,4,14
+New Jersey,February 1992,15,25,3,30.5
+New Jersey,February 1992,4,31,4,23.5
+New Jersey,February 1992,5,12,3,14
+New Jersey,February 1992,3,15,4,14.5
+New Jersey,February 1992,0,25,3,15.5
+New Jersey,February 1992,15,15,4,26.5
+New Jersey,February 1992,0,14,1,8
+New Jersey,February 1992,0,7,2,5.5
+New Jersey,February 1992,10,20.5,3,23.25
+New Jersey,February 1992,5,15,3,15.5
+New Jersey,February 1992,25,6.5,4,32.25
+New Jersey,February 1992,15,20,5,30
+New Jersey,February 1992,26,6,NA,NA
+New Jersey,February 1992,20,15,3,30.5
+New Jersey,February 1992,0,20,4,14
+New Jersey,February 1992,15,18,3,27
+New Jersey,February 1992,5,15,6,18.5
+New Jersey,February 1992,30,10,3,38
+New Jersey,February 1992,0,27,3,16.5
+New Jersey,February 1992,35,20,5,50
+New Jersey,February 1992,0,35,3,20.5
+New Jersey,February 1992,0,7,3,6.5
+New Jersey,February 1992,3,15,3,13.5
+New Jersey,February 1992,8,32,4,28
+New Jersey,February 1992,6,25,3,21.5
+New Jersey,February 1992,4.5,20,NA,NA
+New Jersey,February 1992,4,30,5,24
+New Jersey,February 1992,11,11,4,20.5
+New Jersey,February 1992,0,15,NA,NA
+New Jersey,February 1992,3,35,3,23.5
+New Jersey,February 1992,8,22,4,23
+New Jersey,February 1992,4,18,4,17
+New Jersey,February 1992,2.5,30,3,20.5
+New Jersey,February 1992,18,3,4,23.5
+New Jersey,February 1992,0,15,2,9.5
+New Jersey,February 1992,0,12,4,10
+New Jersey,February 1992,0,20,4,14
+New Jersey,February 1992,60,40,5,85
+New Jersey,February 1992,4.5,15,3,15
+New Jersey,February 1992,12,13,3,21.5
+New Jersey,February 1992,40,20,3,53
+New Jersey,February 1992,0,40,4,24
+New Jersey,February 1992,0,35,3,20.5
+New Jersey,February 1992,6,11,3,14.5
+New Jersey,February 1992,13.5,15,4,25
+New Jersey,February 1992,17,14,3,27
+New Jersey,February 1992,0,35,5,22.5
+New Jersey,February 1992,20,25,4,36.5
+New Jersey,February 1992,4,22.5,2,17.25
+New Jersey,February 1992,10,15,4,21.5
+New Jersey,February 1992,12,19,3,24.5
+New Jersey,February 1992,0,32,3,19
+New Jersey,February 1992,1,38,5,25
+New Jersey,February 1992,8,10,3,16
+New Jersey,February 1992,15,0,4,19
+New Jersey,February 1992,7,25.5,3,22.75
+New Jersey,February 1992,20,20,5,35
+New Jersey,February 1992,6,16,2,16
+New Jersey,February 1992,5.5,25,3,21
+New Jersey,February 1992,14.5,14.5,5,26.75
+New Jersey,February 1992,15,25,3,30.5
+New Jersey,February 1992,0,40,3,23
+New Jersey,February 1992,10,15,4,21.5
+New Jersey,February 1992,15,35,4,36.5
+New Jersey,February 1992,8,20,5,23
+New Jersey,February 1992,0,20,4,14
+New Jersey,February 1992,0,27.5,3.5,17.25
+New Jersey,February 1992,8,15,3,18.5
+New Jersey,February 1992,2,7,3,8.5
+New Jersey,February 1992,6,12,2,14
+New Jersey,February 1992,0,40,3,23
+New Jersey,February 1992,8,32,5,29
+New Jersey,February 1992,5,20,4,19
+New Jersey,February 1992,2,32,3,21
+New Jersey,February 1992,0,24,5,17
+New Jersey,February 1992,6,40,10,36
+New Jersey,February 1992,11,20,4,25
+New Jersey,February 1992,15,21,4,29.5
+New Jersey,February 1992,13,12,3,22
+New Jersey,February 1992,2,12,3,11
+New Jersey,February 1992,8,3,4,13.5
+New Jersey,February 1992,3,15,3,13.5
+New Jersey,February 1992,12,4,4,18
+New Jersey,February 1992,2,9,3,9.5
+New Jersey,February 1992,10,20,4,24
+New Jersey,February 1992,4,15,3,14.5
+New Jersey,February 1992,20,10,4,29
+New Jersey,February 1992,1,13,3,10.5
+New Jersey,February 1992,0,30,3,18
+New Jersey,February 1992,NA,NA,4,NA
+New Jersey,February 1992,0,12,3,9
+New Jersey,February 1992,0,60,3,33
+New Jersey,February 1992,0,33,3,19.5
+New Jersey,February 1992,30,14,4,41
+New Jersey,February 1992,9,12,2,17
+New Jersey,February 1992,10,8.5,4,18.25
+New Jersey,February 1992,8,10,4,17
+New Jersey,February 1992,12,32,4,32
+New Jersey,February 1992,4,36,4,26
+New Jersey,February 1992,0,19,2,11.5
+New Jersey,February 1992,3,28,4,21
+New Jersey,February 1992,11,17.5,3,22.75
+New Jersey,February 1992,4.5,20,4,18.5
+New Jersey,February 1992,2,30,3,20
+New Jersey,February 1992,10,10,3,18
+New Jersey,February 1992,2,11,3,10.5
+New Jersey,February 1992,2,13,2,10.5
+New Jersey,February 1992,7,4,2,11
+New Jersey,February 1992,3,9,3,10.5
+New Jersey,February 1992,3,15,2,12.5
+New Jersey,February 1992,1,28,3,18
+New Jersey,February 1992,2,24,3,17
+New Jersey,February 1992,3,18,3,15
+New Jersey,February 1992,3,27,3,19.5
+New Jersey,February 1992,0,22,2,13
+New Jersey,February 1992,3,28.5,3,20.25
+New Jersey,February 1992,3,40,3,26
+New Jersey,February 1992,0,25,3,15.5
+New Jersey,February 1992,18,6,3,24
+New Jersey,February 1992,19,7,3,25.5
+New Jersey,February 1992,5,17,1,14.5
+New Jersey,February 1992,12,11,4,21.5
+New Jersey,February 1992,0,22,3,14
+New Jersey,February 1992,15,4,3,20
+New Jersey,February 1992,7,25,3,22.5
+New Jersey,February 1992,12,30,3,30
+New Jersey,February 1992,0,40,4,24
+New Jersey,February 1992,8,16,6,22
+New Jersey,February 1992,6,6,4,13
+New Jersey,February 1992,1,4,2,5
+New Jersey,February 1992,7,7,3,13.5
+New Jersey,February 1992,20,10,3,28
+New Jersey,February 1992,4,22,3,18
+New Jersey,February 1992,10,20,4,24
+New Jersey,February 1992,7,13,3,16.5
+New Jersey,February 1992,0,10,2,7
+New Jersey,February 1992,0,20,1,11
+New Jersey,February 1992,6.5,20,3,19.5
+New Jersey,February 1992,2,10,3,10
+New Jersey,February 1992,2,14,4,13
+New Jersey,February 1992,4,4,4,10
+New Jersey,February 1992,2,15,3,12.5
+New Jersey,February 1992,3,4,3,8
+New Jersey,February 1992,2,14,3,12
+New Jersey,February 1992,5,23,4,20.5
+New Jersey,February 1992,3,25,3,18.5
+New Jersey,February 1992,1,15,3,11.5
+New Jersey,February 1992,3,18,3,15
+New Jersey,February 1992,0,20,3,13
+New Jersey,February 1992,2,12,2,10
+New Jersey,February 1992,8,12,3,17
+New Jersey,February 1992,4,20,3,17
+New Jersey,February 1992,10,15,3,20.5
+New Jersey,February 1992,8,9,3,15.5
+New Jersey,February 1992,9,15,3,19.5
+New Jersey,February 1992,10,35,3,30.5
+New Jersey,February 1992,10,20,3,23
+New Jersey,February 1992,0,20,3,13
+New Jersey,February 1992,17.5,17.5,4,30.25
+New Jersey,February 1992,0,28,4,18
+New Jersey,February 1992,4,6,3,10
+New Jersey,February 1992,11,9,4,19.5
+New Jersey,February 1992,8,12,3,17
+New Jersey,February 1992,15,15,3,25.5
+New Jersey,February 1992,0,8,2,6
+New Jersey,February 1992,5,7,3,11.5
+New Jersey,February 1992,0,11,3,8.5
+New Jersey,February 1992,8,13,4,18.5
+New Jersey,February 1992,4,15,4,15.5
+New Jersey,February 1992,2,16.5,4,14.25
+New Jersey,February 1992,28,12,4,38
+New Jersey,February 1992,5,29.5,5,24.75
+New Jersey,February 1992,18,6,2,23
+New Jersey,February 1992,6,30,3,24
+New Jersey,February 1992,2,7,2,7.5
+New Jersey,February 1992,10,6,2,15
+New Jersey,February 1992,2,10.5,2,9.25
+New Jersey,February 1992,3,10.5,3,11.25
+New Jersey,February 1992,8,9,4,16.5
+New Jersey,February 1992,2,27.5,3,18.75
+New Jersey,February 1992,0,19,4,13.5
+New Jersey,February 1992,7.5,22.5,3,21.75
+New Jersey,February 1992,2,17,3,13.5
+New Jersey,February 1992,0,22,4,15
+New Jersey,February 1992,3,25,2,17.5
+New Jersey,February 1992,6,13,5,17.5
+New Jersey,February 1992,6,13,NA,NA
+New Jersey,February 1992,0,25,3,15.5
+New Jersey,February 1992,3.5,20,3,16.5
+New Jersey,February 1992,2,17,3,13.5
+New Jersey,February 1992,0,20,3,13
+New Jersey,February 1992,0,15,4,11.5
+New Jersey,February 1992,20,11.5,3.3,29.05
+New Jersey,February 1992,4,10,4,13
+New Jersey,February 1992,12,6,3,18
+New Jersey,February 1992,20,12,4,30
+New Jersey,February 1992,10,15,3,20.5
+New Jersey,February 1992,6,4,2,10
+New Jersey,February 1992,NA,NA,3,NA
+New Jersey,February 1992,16,14,3,26
+New Jersey,February 1992,0,19,3,12.5
+New Jersey,February 1992,15,5,2,19.5
+New Jersey,February 1992,4,10,3,12
+New Jersey,February 1992,24,16,4,36
+New Jersey,February 1992,4,28,3,21
+New Jersey,February 1992,14,13,4,24.5
+New Jersey,February 1992,13,8,3,20
+New Jersey,February 1992,16,15,3,26.5
+New Jersey,February 1992,8,6,4,15
+New Jersey,February 1992,11,10,3,19
+New Jersey,February 1992,6,17,3,17.5
+New Jersey,February 1992,0,35,3,20.5
+New Jersey,February 1992,0,36,3,21
+New Jersey,February 1992,0,17,2,10.5
+New Jersey,February 1992,0,36,5,23
+New Jersey,February 1992,0,36,5,23
+New Jersey,February 1992,8,32,5,29
+New Jersey,February 1992,4,28,3,21
+New Jersey,February 1992,30,15,4,41.5
+New Jersey,February 1992,3,10,4,12
+New Jersey,February 1992,20,10,8,33
+New Jersey,February 1992,0,7,3,6.5
+New Jersey,February 1992,2,10,2,9
+New Jersey,February 1992,3.5,6.5,3,9.75
+New Jersey,February 1992,3,33,5,24.5
+New Jersey,February 1992,7,8,3,14
+New Jersey,February 1992,0,33,3,19.5
+Pennsylvania,November 1992,3.5,35,3,24
+Pennsylvania,November 1992,0,15,4,11.5
+Pennsylvania,November 1992,3,7,4,10.5
+Pennsylvania,November 1992,0,36,2,20
+Pennsylvania,November 1992,28,3,6,35.5
+Pennsylvania,November 1992,NA,NA,NA,NA
+Pennsylvania,November 1992,15,18,5,29
+Pennsylvania,November 1992,26,9,6,36.5
+Pennsylvania,November 1992,3,12,2,11
+Pennsylvania,November 1992,2,9,2,8.5
+Pennsylvania,November 1992,1,25,4,17.5
+Pennsylvania,November 1992,9,32,4,29
+Pennsylvania,November 1992,7,39,4,30.5
+Pennsylvania,November 1992,18,10,3,26
+Pennsylvania,November 1992,5,20,3,18
+Pennsylvania,November 1992,15,4,3,20
+Pennsylvania,November 1992,4,13,3,13.5
+Pennsylvania,November 1992,6,20,3,19
+Pennsylvania,November 1992,5,15,3,15.5
+Pennsylvania,November 1992,2,19,3,14.5
+Pennsylvania,November 1992,2,18,3,14
+Pennsylvania,November 1992,0,30,4,19
+Pennsylvania,November 1992,8,20,3,21
+Pennsylvania,November 1992,10,10,3,18
+Pennsylvania,November 1992,0,31,5,20.5
+Pennsylvania,November 1992,5.5,10,3,13.5
+Pennsylvania,November 1992,5,19,3,17.5
+Pennsylvania,November 1992,6,25,7,25.5
+Pennsylvania,November 1992,5,15,3,15.5
+Pennsylvania,November 1992,7,25,6,25.5
+Pennsylvania,November 1992,0,42,6,27
+Pennsylvania,November 1992,0,22,5,16
+Pennsylvania,November 1992,11,12,2,19
+Pennsylvania,November 1992,0,45,2,24.5
+Pennsylvania,November 1992,7.5,25,5,25
+Pennsylvania,November 1992,4,20,3,17
+Pennsylvania,November 1992,6,15,3,16.5
+Pennsylvania,November 1992,7,18,4,20
+Pennsylvania,November 1992,0,28,4,18
+Pennsylvania,November 1992,0,16,4,12
+Pennsylvania,November 1992,10,20,5,25
+Pennsylvania,November 1992,1,14,3,11
+Pennsylvania,November 1992,0,48,3,27
+Pennsylvania,November 1992,25,10,4,34
+Pennsylvania,November 1992,0,42,4,25
+Pennsylvania,November 1992,19,29,4,37.5
+Pennsylvania,November 1992,0,32,5,21
+Pennsylvania,November 1992,2,9,3,9.5
+Pennsylvania,November 1992,0,30,3,18
+Pennsylvania,November 1992,0,30,3,18
+Pennsylvania,November 1992,5,20,4,19
+Pennsylvania,November 1992,10,35,4,31.5
+Pennsylvania,November 1992,7,24,4,23
+Pennsylvania,November 1992,8,27,3,24.5
+Pennsylvania,November 1992,15,15,5,27.5
+Pennsylvania,November 1992,27.5,8,3,34.5
+Pennsylvania,November 1992,0,18,5,14
+Pennsylvania,November 1992,0,20,5,15
+Pennsylvania,November 1992,14,12,3,23
+Pennsylvania,November 1992,12,23,3,26.5
+Pennsylvania,November 1992,8,25,3,23.5
+Pennsylvania,November 1992,26,15,2,35.5
+Pennsylvania,November 1992,10,16,3,21
+Pennsylvania,November 1992,5,30,3,23
+Pennsylvania,November 1992,6,20,4,20
+Pennsylvania,November 1992,8,30,4,27
+Pennsylvania,November 1992,4,12,3,13
+Pennsylvania,November 1992,0,0,0,0
+Pennsylvania,November 1992,4,15,2,13.5
+Pennsylvania,November 1992,NA,NA,5,NA
+Pennsylvania,November 1992,21,5.5,3,26.75
+Pennsylvania,November 1992,30,15,6,43.5
+Pennsylvania,November 1992,35,6.5,3,41.25
+Pennsylvania,November 1992,2.5,17.5,3,14.25
+Pennsylvania,November 1992,3,13,3,12.5
+Pennsylvania,November 1992,23,16,3,34
+Pennsylvania,November 1992,2,12,2,10
+Pennsylvania,November 1992,0,12,8,14
+Pennsylvania,November 1992,3,23,3,17.5
+New Jersey,November 1992,2,40,5,27
+New Jersey,November 1992,5,25,4,21.5
+New Jersey,November 1992,8,24,3,23
+New Jersey,November 1992,2,33,3,21.5
+New Jersey,November 1992,26.5,10,3,34.5
+New Jersey,November 1992,1,15,2,10.5
+New Jersey,November 1992,0,25,4,16.5
+New Jersey,November 1992,16,6,4,23
+New Jersey,November 1992,23,22,4,38
+New Jersey,November 1992,28,10,3,36
+New Jersey,November 1992,8,12,2,16
+New Jersey,November 1992,0,35,3,20.5
+New Jersey,November 1992,6,20,3,19
+New Jersey,November 1992,35,30,3,53
+New Jersey,November 1992,4.5,20,2,16.5
+New Jersey,November 1992,7,13,3,16.5
+New Jersey,November 1992,30,20,5,45
+New Jersey,November 1992,5,2,2,8
+New Jersey,November 1992,4,17,3,15.5
+New Jersey,November 1992,10,20,4,24
+New Jersey,November 1992,0,7,4,7.5
+New Jersey,November 1992,4,3,2,7.5
+New Jersey,November 1992,6,15,5,18.5
+New Jersey,November 1992,6,11,5,16.5
+New Jersey,November 1992,10,35,6,33.5
+New Jersey,November 1992,4,60,3,37
+New Jersey,November 1992,10,12,2,18
+New Jersey,November 1992,0,45,4,26.5
+New Jersey,November 1992,25,8,4,33
+New Jersey,November 1992,NA,NA,4,NA
+New Jersey,November 1992,0,35,3,20.5
+New Jersey,November 1992,6,25,6,24.5
+New Jersey,November 1992,2,20,4,16
+New Jersey,November 1992,NA,NA,2,NA
+New Jersey,November 1992,5,25,6,23.5
+New Jersey,November 1992,3,16,2,13
+New Jersey,November 1992,7,18,4,20
+New Jersey,November 1992,8,22,3,22
+New Jersey,November 1992,11,25,5,28.5
+New Jersey,November 1992,NA,NA,NA,NA
+New Jersey,November 1992,4,37,3,25.5
+New Jersey,November 1992,10,8,4,18
+New Jersey,November 1992,6,0,3,9
+New Jersey,November 1992,7.5,30,4,26.5
+New Jersey,November 1992,0,0,0,0
+New Jersey,November 1992,12,13.5,5,23.75
+New Jersey,November 1992,12,8,2,18
+New Jersey,November 1992,26,12,4,36
+New Jersey,November 1992,1.5,33,3,21
+New Jersey,November 1992,5,15,3,15.5
+New Jersey,November 1992,10,17,4,22.5
+New Jersey,November 1992,20,6,4,27
+New Jersey,November 1992,20,20,4,34
+New Jersey,November 1992,5,17.5,3,16.75
+New Jersey,November 1992,7,30,4,26
+New Jersey,November 1992,0,30,3,18
+New Jersey,November 1992,5,21,5,20.5
+New Jersey,November 1992,10,4,3,15
+New Jersey,November 1992,15,15,3,25.5
+New Jersey,November 1992,15,NA,4,NA
+New Jersey,November 1992,12,10,3,20
+New Jersey,November 1992,8,12,4,18
+New Jersey,November 1992,15,15,4,26.5
+New Jersey,November 1992,0,42.5,2,23.25
+New Jersey,November 1992,0,15,3,10.5
+New Jersey,November 1992,2,14,3,12
+New Jersey,November 1992,3,7,3,9.5
+New Jersey,November 1992,5,15,3,15.5
+New Jersey,November 1992,4,9,6,14.5
+New Jersey,November 1992,6,12,2,14
+New Jersey,November 1992,2,7,1,6.5
+New Jersey,November 1992,4,6,3,10
+New Jersey,November 1992,4,11,2,11.5
+New Jersey,November 1992,22,39,5,46.5
+New Jersey,November 1992,0,45,4,26.5
+New Jersey,November 1992,3,20,3,16
+New Jersey,November 1992,0,20,3,13
+New Jersey,November 1992,0,20,4,14
+New Jersey,November 1992,9,7,3,15.5
+New Jersey,November 1992,0,28,4,18
+New Jersey,November 1992,21,6,3,27
+New Jersey,November 1992,11,22,5,27
+New Jersey,November 1992,18,15,4,29.5
+New Jersey,November 1992,0,25,4,16.5
+New Jersey,November 1992,20,15,4,31.5
+New Jersey,November 1992,15,15,5,27.5
+New Jersey,November 1992,11,23,3,25.5
+New Jersey,November 1992,17,22,4,32
+New Jersey,November 1992,8,7,3,14.5
+New Jersey,November 1992,0,15,3,10.5
+New Jersey,November 1992,20,40,4,44
+New Jersey,November 1992,7.5,10,3,15.5
+New Jersey,November 1992,4,7,3,10.5
+New Jersey,November 1992,5,30,4,24
+New Jersey,November 1992,10,30,4,29
+New Jersey,November 1992,15,25,3,30.5
+New Jersey,November 1992,0,32,4,20
+New Jersey,November 1992,15,15,4,26.5
+New Jersey,November 1992,12,24,3,27
+New Jersey,November 1992,15,15,4,26.5
+New Jersey,November 1992,2,11,3,10.5
+New Jersey,November 1992,5,20,3,18
+New Jersey,November 1992,7,17,3,18.5
+New Jersey,November 1992,4,35,4,25.5
+New Jersey,November 1992,8,38,5,32
+New Jersey,November 1992,6,44,5,33
+New Jersey,November 1992,0,11,2,7.5
+New Jersey,November 1992,3,15,2,12.5
+New Jersey,November 1992,14,14,3,24
+New Jersey,November 1992,15,20,4,29
+New Jersey,November 1992,6,2,3,10
+New Jersey,November 1992,0,13,3,9.5
+New Jersey,November 1992,2,25,3,17.5
+New Jersey,November 1992,11,7,3,17.5
+New Jersey,November 1992,13,18,3,25
+New Jersey,November 1992,10,20,6,26
+New Jersey,November 1992,15,10,4,24
+New Jersey,November 1992,13,13,3,22.5
+New Jersey,November 1992,NA,NA,3,NA
+New Jersey,November 1992,26,10,4,35
+New Jersey,November 1992,4,17.5,5,17.75
+New Jersey,November 1992,13,17,3,24.5
+New Jersey,November 1992,0,27,3,16.5
+New Jersey,November 1992,10,30,5,30
+New Jersey,November 1992,29,14,3,39
+New Jersey,November 1992,14,0,3,17
+New Jersey,November 1992,4,11,3,12.5
+New Jersey,November 1992,25,15,6,38.5
+New Jersey,November 1992,8,18,3,20
+New Jersey,November 1992,11,14,3,21
+New Jersey,November 1992,12,30,5,32
+New Jersey,November 1992,9,12,4,19
+New Jersey,November 1992,0,30,5,20
+New Jersey,November 1992,4,37,4,26.5
+New Jersey,November 1992,0,30,4,19
+New Jersey,November 1992,14,6,3,20
+New Jersey,November 1992,5,25,5,22.5
+New Jersey,November 1992,0,14,3,10
+New Jersey,November 1992,0,15,5,12.5
+New Jersey,November 1992,2.5,11,3,11
+New Jersey,November 1992,3,13,3,12.5
+New Jersey,November 1992,30,50,4,59
+New Jersey,November 1992,10,12,3,19
+New Jersey,November 1992,0,27,2,15.5
+New Jersey,November 1992,11,10,3,19
+New Jersey,November 1992,0,45,4,26.5
+New Jersey,November 1992,2,25,3,17.5
+New Jersey,November 1992,13.5,10,2,20.5
+New Jersey,November 1992,11,24,5,28
+New Jersey,November 1992,20,14.5,3,30.25
+New Jersey,November 1992,20,40,4,44
+New Jersey,November 1992,6,15,4,17.5
+New Jersey,November 1992,22,12,3,31
+New Jersey,November 1992,18,20,3,31
+New Jersey,November 1992,18,13,4,28.5
+New Jersey,November 1992,0,30,4,19
+New Jersey,November 1992,10,50,6,41
+New Jersey,November 1992,21,6,4,28
+New Jersey,November 1992,0,15,2,9.5
+New Jersey,November 1992,2,38,4,25
+New Jersey,November 1992,15,20,3,28
+New Jersey,November 1992,3,20,3,16
+New Jersey,November 1992,6,27.5,3,22.75
+New Jersey,November 1992,NA,NA,NA,NA
+New Jersey,November 1992,12,30,5,32
+New Jersey,November 1992,5,35,5,27.5
+New Jersey,November 1992,10,25,3,25.5
+New Jersey,November 1992,40,31,5,60.5
+New Jersey,November 1992,0,32,4.5,20.5
+New Jersey,November 1992,8,10,3,16
+New Jersey,November 1992,12,20,3,25
+New Jersey,November 1992,2,18,2,13
+New Jersey,November 1992,3,4,4,9
+New Jersey,November 1992,10,5,4,16.5
+New Jersey,November 1992,3,30,3,21
+New Jersey,November 1992,0,35,4,21.5
+New Jersey,November 1992,0,32,4,20
+New Jersey,November 1992,10,12.5,5,21.25
+New Jersey,November 1992,7,23,3,21.5
+New Jersey,November 1992,11,30,5,31
+New Jersey,November 1992,20,20,3,33
+New Jersey,November 1992,20,27.5,4,37.75
+New Jersey,November 1992,1,10,3,9
+New Jersey,November 1992,2,10,4,11
+New Jersey,November 1992,0,17.5,4,12.75
+New Jersey,November 1992,0,15,3,10.5
+New Jersey,November 1992,15,10,2,22
+New Jersey,November 1992,2,6,3,8
+New Jersey,November 1992,12,18,4,25
+New Jersey,November 1992,0,19,3,12.5
+New Jersey,November 1992,4.5,30,3,22.5
+New Jersey,November 1992,4,9,3,11.5
+New Jersey,November 1992,8,25,3,23.5
+New Jersey,November 1992,10,32,4,30
+New Jersey,November 1992,11,3,4,16.5
+New Jersey,November 1992,5,40,4,29
+New Jersey,November 1992,16,22,3,30
+New Jersey,November 1992,13,11,4,22.5
+New Jersey,November 1992,4,34,3,24
+New Jersey,November 1992,12,13.5,3,21.75
+New Jersey,November 1992,8.5,6,2,13.5
+New Jersey,November 1992,5,32,3,24
+New Jersey,November 1992,6,37,4,28.5
+New Jersey,November 1992,0,14,3,10
+New Jersey,November 1992,2,35,4,23.5
+New Jersey,November 1992,20,15,3,30.5
+New Jersey,November 1992,12,17.5,4,24.75
+New Jersey,November 1992,0,35,5,22.5
+New Jersey,November 1992,20,10,3,28
+New Jersey,November 1992,2,18,3,14
+New Jersey,November 1992,0,12,3,9
+New Jersey,November 1992,5,3,3,9.5
+New Jersey,November 1992,9,9,2,15.5
+New Jersey,November 1992,3,12,3,12
+New Jersey,November 1992,1,15,3,11.5
+New Jersey,November 1992,2,15,3,12.5
+New Jersey,November 1992,3,20,3,16
+New Jersey,November 1992,12,25,4,28.5
+New Jersey,November 1992,0,26,2,15
+New Jersey,November 1992,11,19,3,23.5
+New Jersey,November 1992,22,11,3,30.5
+New Jersey,November 1992,15,17,3,26.5
+New Jersey,November 1992,18,10,4,27
+New Jersey,November 1992,15,7,3,21.5
+New Jersey,November 1992,NA,28,3,NA
+New Jersey,November 1992,9,17,4,21.5
+New Jersey,November 1992,25,15,5,37.5
+New Jersey,November 1992,0,19,2,11.5
+New Jersey,November 1992,7,22,3,21
+New Jersey,November 1992,16,12,6,28
+New Jersey,November 1992,0,40,4,24
+New Jersey,November 1992,10,14,6,23
+New Jersey,November 1992,10,12,3,19
+New Jersey,November 1992,2,4,3,7
+New Jersey,November 1992,4,8,6,14
+New Jersey,November 1992,NA,NA,NA,NA
+New Jersey,November 1992,20,18,3,32
+New Jersey,November 1992,4,26,5,22
+New Jersey,November 1992,0,22.5,3,14.25
+New Jersey,November 1992,0,23,5,16.5
+New Jersey,November 1992,0,0,0,0
+New Jersey,November 1992,30,25,5,47.5
+New Jersey,November 1992,10,3,4,15.5
+New Jersey,November 1992,2,11,3,10.5
+New Jersey,November 1992,1,8,2,7
+New Jersey,November 1992,1,14,3,11
+New Jersey,November 1992,0,9,4,8.5
+New Jersey,November 1992,0,0,0,0
+New Jersey,November 1992,6,12,3,15
+New Jersey,November 1992,3,15,3,13.5
+New Jersey,November 1992,2,15,3,12.5
+New Jersey,November 1992,2,15,3,12.5
+New Jersey,November 1992,5,9,3,12.5
+New Jersey,November 1992,3,10,2,10
+New Jersey,November 1992,0,23,2,13.5
+New Jersey,November 1992,5,16,3,16
+New Jersey,November 1992,15,11,3,23.5
+New Jersey,November 1992,NA,21,4,NA
+New Jersey,November 1992,15,30,4,34
+New Jersey,November 1992,12,35,3,32.5
+New Jersey,November 1992,10,15,4,21.5
+New Jersey,November 1992,5,22,4,20
+New Jersey,November 1992,25,25,6,43.5
+New Jersey,November 1992,3,23,3,17.5
+New Jersey,November 1992,3,2,3,7
+New Jersey,November 1992,0,30,NA,NA
+New Jersey,November 1992,15,6,4,22
+New Jersey,November 1992,12,14,3,22
+New Jersey,November 1992,4,0,3,7
+New Jersey,November 1992,7,6,4,14
+New Jersey,November 1992,22,4,3,27
+New Jersey,November 1992,12,5,4,18.5
+New Jersey,November 1992,1,15,3,11.5
+New Jersey,November 1992,3,20,3,16
+New Jersey,November 1992,10,20,5,25
+New Jersey,November 1992,25,5,3,30.5
+New Jersey,November 1992,5,9,2,11.5
+New Jersey,November 1992,15,17,2,25.5
+New Jersey,November 1992,3,7,3,9.5
+New Jersey,November 1992,4,11,2,11.5
+New Jersey,November 1992,3,12,3,12
+New Jersey,November 1992,0,0,0,0
+New Jersey,November 1992,5,20,2,17
+New Jersey,November 1992,10,20,4,24
+New Jersey,November 1992,NA,NA,NA,NA
+New Jersey,November 1992,NA,31,4,NA
+New Jersey,November 1992,3,17,2,13.5
+New Jersey,November 1992,0,26,4,17
+New Jersey,November 1992,5,32,7,28
+New Jersey,November 1992,4,23,6,21.5
+New Jersey,November 1992,24,4,4,30
+New Jersey,November 1992,14,7,2,19.5
+New Jersey,November 1992,1,30,4,20
+New Jersey,November 1992,1,19,4,14.5
+New Jersey,November 1992,0,25,2,14.5
+New Jersey,November 1992,0,0,0,0
+New Jersey,November 1992,26,5,3,31.5
+New Jersey,November 1992,0,17,3,11.5
+New Jersey,November 1992,11,12,3,20
+New Jersey,November 1992,28,6,3,34
+New Jersey,November 1992,15,14,3,25
+New Jersey,November 1992,7,2,2,10
+New Jersey,November 1992,0,30,3,18
+New Jersey,November 1992,15,14,3,25
+New Jersey,November 1992,14,10,4,23
+New Jersey,November 1992,12,7,2,17.5
+New Jersey,November 1992,18,4,3,23
+New Jersey,November 1992,8,30,3,26
+New Jersey,November 1992,6,15,3,16.5
+New Jersey,November 1992,25,15,3,35.5
+New Jersey,November 1992,18,18,4,31
+New Jersey,November 1992,8,24,3,23
+New Jersey,November 1992,5,27,4,22.5
+New Jersey,November 1992,17,5,2,21.5
+New Jersey,November 1992,1.5,15,3,12
+New Jersey,November 1992,0,35,3,20.5
+New Jersey,November 1992,4,36,3,25
+New Jersey,November 1992,0,13,2,8.5
+New Jersey,November 1992,0,20,3,13
+New Jersey,November 1992,13,9,4,21.5
+New Jersey,November 1992,0,38,4,23
+New Jersey,November 1992,13,17,4,25.5
+New Jersey,November 1992,0,35,4,21.5
+New Jersey,November 1992,5,5,2,9.5
+New Jersey,November 1992,25,7,8,36.5
+New Jersey,November 1992,5,10,6,16
+New Jersey,November 1992,19,3.5,3,23.75
+New Jersey,November 1992,12,3,4,17.5
+New Jersey,November 1992,5,25,3,20.5
+New Jersey,November 1992,0,35,3,20.5
+New Jersey,November 1992,10,24,3,25
